@@ -506,15 +506,56 @@
       </div>
     </section>
 
+    <!-- ═══ SECTION: SPRINT 2 ═══ -->
+    <section>
+      <div class="section-title">Sprint 2 — May 5, 2026 &nbsp;·&nbsp; What I Built</div>
+      <div class="insight-list">
+
+        <div class="insight">
+          <div class="insight-num">1</div>
+          <div class="insight-body">
+            <strong>Shipped a live Kanban dashboard tracking 7 automation ideas.</strong> ai-builder-dashboard.html is deployed at a public URL and pulls data directly from Notion in real-time. Cards move between columns — status syncs back to the database on every drag.
+          </div>
+        </div>
+
+        <div class="insight">
+          <div class="insight-num">2</div>
+          <div class="insight-body">
+            <strong>Wired a live Notion backend as the single source of truth.</strong> The AI Automation Roadmap database powers the dashboard via a serverless <code style="font-size:12px; color:var(--color-accent);">/api/roadmap</code> function. Every page load queries Notion directly — no stale data, no manual sync.
+          </div>
+        </div>
+
+        <div class="insight">
+          <div class="insight-num">3</div>
+          <div class="insight-body">
+            <strong>Built an automation advisor agent that replaces the manual planning session.</strong> The agent reads the Notion roadmap and Claude Code session history, then outputs a 60-second briefing: what's stalled, what to prioritize, and one automation to add next. The session that required context-switching now starts with a brief already written.
+          </div>
+        </div>
+
+        <div class="insight">
+          <div class="insight-num">4</div>
+          <div class="insight-body">
+            <strong>Deployed the full stack to production on Vercel.</strong> All three pages are live, the Notion API is authenticated via environment variables, and the codebase is version-controlled on GitHub.
+          </div>
+        </div>
+
+      </div>
+      <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="audit-link" href="https://ai-builder-five-beta.vercel.app/time-audit.html">↗ Time Audit</a>
+        <a class="audit-link" href="https://ai-builder-five-beta.vercel.app/ai-builder-plan.html">↗ Automation Plan</a>
+        <a class="audit-link" href="https://ai-builder-five-beta.vercel.app/ai-builder-dashboard.html">↗ Live Dashboard</a>
+      </div>
+    </section>
+
     <!-- ═══ SECTION: COMING SPRINTS ═══ -->
     <section>
-      <div class="section-title">My System — Coming Sprints</div>
+      <div class="section-title">My System — Sprints</div>
       <div class="sprint-grid">
 
-        <div class="sprint-card">
-          <div class="sprint-label">Sprint 2</div>
-          <div class="sprint-name">Deployed website + data collection tool</div>
-          <div class="sprint-coming">Coming in Sprint 2</div>
+        <div class="sprint-card" style="border-color: var(--color-positive); border-style: solid;">
+          <div class="sprint-label" style="color: var(--color-positive);">Sprint 2 &nbsp;·&nbsp; Done</div>
+          <div class="sprint-name">Deployed site, live Notion dashboard + automation advisor agent</div>
+          <div class="sprint-coming" style="color: var(--color-positive);">Shipped May 5, 2026</div>
         </div>
 
         <div class="sprint-card">
