@@ -1,0 +1,11 @@
+node_modules/
+.env.local
+.env*.local
+.vercel
+.claude/
+*.pptx
+pptx_b64.txt
+install_skill.py
+make_pptx.py
+make_pptx_plain.py
+minimalist-design-workspace/

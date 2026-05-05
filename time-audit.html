@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time Audit — Jonah Brooks</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3352;
+      --accent: #5b7fff;
+      --accent2: #7c5cfc;
+      --green: #2dd4a0;
+      --yellow: #f0c060;
+      --red: #f06080;
+      --muted: #6b7280;
+      --text: #e2e6f0;
+      --text-dim: #9ca3af;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 0 0 60px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    /* ─── HEADER ─── */
+    .header {
+      background: linear-gradient(135deg, #13172a 0%, #1a2040 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 40px 36px;
+    }
+    .header-inner { max-width: 1100px; margin: 0 auto; }
+    .badge {
+      display: inline-block;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-dim);
+      padding: 3px 12px;
+      margin-bottom: 16px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .header h1 { font-size: 32px; font-weight: 700; margin-bottom: 6px; }
+    .header .goal-line {
+      font-size: 16px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+    .header .goal-line strong { color: var(--accent); font-weight: 600; }
+    .header .date-line { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+    /* ─── LAYOUT ─── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+    /* ─── SECTION ─── */
+    section { margin-top: 48px; }
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ─── GRID ─── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    @media (max-width: 860px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    /* ─── CARD ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .card-value {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .card-sub { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+    .accent { color: var(--accent); }
+    .green { color: var(--green); }
+    .yellow { color: var(--yellow); }
+    .red { color: var(--red); }
+
+    /* ─── BAR CHART ─── */
+    .bar-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    .bar-row { display: flex; align-items: center; gap: 10px; }
+    .bar-label {
+      width: 160px;
+      flex-shrink: 0;
+      font-size: 13px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bar-track {
+      flex: 1;
+      background: var(--surface2);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width .3s;
+    }
+    .bar-count {
+      width: 55px;
+      text-align: right;
+      font-size: 12px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      color: var(--text-dim);
+    }
+    tr:last-child td { border-bottom: none; }
+    td:first-child { color: var(--text); font-weight: 500; }
+
+    /* ─── PILL ─── */
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+    .pill-red { background: rgba(240,96,128,.15); color: var(--red); }
+    .pill-yellow { background: rgba(240,192,96,.15); color: var(--yellow); }
+    .pill-green { background: rgba(45,212,160,.15); color: var(--green); }
+    .pill-blue { background: rgba(91,127,255,.15); color: var(--accent); }
+    .pill-purple { background: rgba(124,92,252,.15); color: var(--accent2); }
+
+    /* ─── DIAGNOSTIC CARD ─── */
+    .diag-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .diag-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .diag-card p {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .diag-card .signal {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-dim);
+      background: var(--surface2);
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+
+    /* ─── AUTOMATION CARD ─── */
+    .auto-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .auto-card .outcome {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--text);
+    }
+    .auto-card .auto-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .auto-card .auto-text {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    .auto-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      align-items: center;
+    }
+    .hours-badge {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    /* ─── GOAL ALIGNMENT ─── */
+    .goal-row {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    .goal-row + .goal-row { margin-top: 12px; }
+    .goal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .goal-name { font-size: 14px; font-weight: 600; }
+    .goal-body { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+    .alignment-bar {
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .alignment-fill { height: 100%; border-radius: 4px; }
+
+    /* ─── ANOMALY BOX ─── */
+    .anomaly {
+      background: rgba(240,96,128,.07);
+      border: 1px solid rgba(240,96,128,.3);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .anomaly strong { color: var(--red); }
+
+    /* ─── SOURCES ─── */
+    .source-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .source-item:last-child { border-bottom: none; }
+    .source-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .source-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .source-detail { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="badge">AI Builder Automation Portfolio</div>
+      <h1>Jonah Brooks — Time Audit</h1>
+      <p class="goal-line">
+        #1 Goal: <strong>Build autonomous research agents that surface competitor and trend intelligence without manual effort</strong>
+      </p>
+      <p class="date-line">April 21, 2026 &nbsp;·&nbsp; 14-weekday window: Apr 2 – Apr 21, 2026 &nbsp;·&nbsp; ⚠ Draft — based on available data sources</p>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- ═══ SECTION 2: HOW I ACTUALLY SPEND MY TIME ═══ -->
+    <section>
+      <div class="section-title">How I Actually Spend My Time</div>
+
+      <!-- Browser Category Summary -->
+      <div class="grid-4" style="margin-bottom:16px;">
+        <div class="card">
+          <div class="card-title">Total Browser Visits</div>
+          <div class="card-value accent">2,008</div>
+          <div class="card-sub">Weekdays, 8am–6:30pm<br>Apr 2 – Apr 21</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Social Media Share</div>
+          <div class="card-value red">42%</div>
+          <div class="card-sub">844 visits during work hours<br>LinkedIn dominates at 645</div>
+        </div>
+        <div class="card">
+          <div class="card-title">AI Tools Share</div>
+          <div class="card-value yellow">1.2%</div>
+          <div class="card-sub">Only 24 visits to Claude + n8n<br>vs. stated #1 goal</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Confirmed Meetings</div>
+          <div class="card-value green">3.5 hrs</div>
+          <div class="card-sub">4 events over 14 weekdays<br>Personal calendar only</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <!-- Browser Categories -->
+        <div class="card">
+          <div class="card-title">Browser — Category Breakdown</div>
+          <div class="bar-list">
+            <div class="bar-row">
+              <span class="bar-label">Social Media</span>
+              <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--red)"></div></div>
+              <span class="bar-count red">844 (42%)</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Research / News</span>
+              <div class="bar-track"><div class="bar-fill" style="width:67%;background:var(--muted)"></div></div>
+              <span class="bar-count">571 (28%)</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Work / Docs</span>
+              <div class="bar-track"><div class="bar-fill" style="width:35%;background:var(--accent)"></div></div>
+              <span class="bar-count accent">297 (15%)</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Other</span>
+              <div class="bar-track"><div class="bar-fill" style="width:22%;background:var(--surface2)"></div></div>
+              <span class="bar-count">188 (9%)</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Personal</span>
+              <div class="bar-track"><div class="bar-fill" style="width:9%;background:var(--surface2)"></div></div>
+              <span class="bar-count">73 (4%)</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">AI Tools</span>
+              <div class="bar-track"><div class="bar-fill" style="width:3%;background:var(--yellow)"></div></div>
+              <span class="bar-count yellow">24 (1%)</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">CRM / Ops</span>
+              <div class="bar-track"><div class="bar-fill" style="width:1.5%;background:var(--accent2)"></div></div>
+              <span class="bar-count">11 (&lt;1%)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Domains -->
+        <div class="card">
+          <div class="card-title">Top 10 Domains — Work Hours</div>
+          <table>
+            <thead><tr><th>Domain</th><th>Category</th><th style="text-align:right">Visits</th></tr></thead>
+            <tbody>
+              <tr><td>linkedin.com</td><td><span class="pill pill-red">Social</span></td><td style="text-align:right">645</td></tr>
+              <tr><td>google.com</td><td><span class="pill pill-purple">Research</span></td><td style="text-align:right">464</td></tr>
+              <tr><td>docs.google.com</td><td><span class="pill pill-blue">Docs</span></td><td style="text-align:right">171</td></tr>
+              <tr><td>facebook.com</td><td><span class="pill pill-red">Social</span></td><td style="text-align:right">150</td></tr>
+              <tr><td>outlook.office.com</td><td><span class="pill pill-blue">Work</span></td><td style="text-align:right">47</td></tr>
+              <tr><td>instagram.com</td><td><span class="pill pill-red">Social</span></td><td style="text-align:right">37</td></tr>
+              <tr><td>joinleland.com</td><td><span class="pill pill-yellow">Learning</span></td><td style="text-align:right">22</td></tr>
+              <tr><td>api.smg.com</td><td><span class="pill pill-blue">Survey Tool</span></td><td style="text-align:right">21</td></tr>
+              <tr><td>drive.google.com</td><td><span class="pill pill-blue">Docs</span></td><td style="text-align:right">15</td></tr>
+              <tr><td>claude.ai</td><td><span class="pill pill-green">AI Tool</span></td><td style="text-align:right">14</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Daily visits chart -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Daily Browser Activity — Weekdays (8am–6:30pm)</div>
+        <div class="bar-list">
+          <div class="bar-row"><span class="bar-label">Apr 2 (Thu)</span><div class="bar-track"><div class="bar-fill" style="width:14.9%;background:var(--accent)"></div></div><span class="bar-count">71</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 3 (Fri)</span><div class="bar-track"><div class="bar-fill" style="width:36.1%;background:var(--accent)"></div></div><span class="bar-count">172</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 6 (Mon)</span><div class="bar-track"><div class="bar-fill" style="width:14.5%;background:var(--accent)"></div></div><span class="bar-count">69</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 7 (Tue)</span><div class="bar-track"><div class="bar-fill" style="width:12.8%;background:var(--accent)"></div></div><span class="bar-count">61</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 8 (Wed)</span><div class="bar-track"><div class="bar-fill" style="width:6.5%;background:var(--accent)"></div></div><span class="bar-count">31</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 9 (Thu)</span><div class="bar-track"><div class="bar-fill" style="width:13%;background:var(--accent)"></div></div><span class="bar-count">62</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 10 (Fri)</span><div class="bar-track"><div class="bar-fill" style="width:12.6%;background:var(--accent)"></div></div><span class="bar-count">60</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 13 (Mon)</span><div class="bar-track"><div class="bar-fill" style="width:17%;background:var(--accent)"></div></div><span class="bar-count">81</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 14 (Tue)</span><div class="bar-track"><div class="bar-fill" style="width:25.8%;background:var(--accent)"></div></div><span class="bar-count">123</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 15 (Wed)</span><div class="bar-track"><div class="bar-fill" style="width:31.3%;background:var(--accent)"></div></div><span class="bar-count">149</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 16 (Thu)</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--red)"></div></div><span class="bar-count red">476 ⚠</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 17 (Fri)</span><div class="bar-track"><div class="bar-fill" style="width:29.8%;background:var(--accent)"></div></div><span class="bar-count">142</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 20 (Mon)</span><div class="bar-track"><div class="bar-fill" style="width:62.8%;background:var(--accent)"></div></div><span class="bar-count">299</span></div>
+          <div class="bar-row"><span class="bar-label">Apr 21 (Tue)</span><div class="bar-track"><div class="bar-fill" style="width:44.5%;background:var(--accent2)"></div></div><span class="bar-count accent2">212</span></div>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="anomaly"><strong>⚠ Apr 16 anomaly:</strong> 389 of 476 visits happened between 6:00–6:30pm — all to google.com. This pattern suggests rapid tab cycling or an extension running in background, not normal browsing. Excluding this outlier, average is ~115 visits/day.</div>
+        </div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Calendar Events (Apr 2–21, Personal Calendar)</div>
+          <table>
+            <thead><tr><th>Event</th><th>Type</th><th>Duration</th></tr></thead>
+            <tbody>
+              <tr><td>My AI Workflow (Leland)</td><td><span class="pill pill-yellow">Learning</span></td><td>30 min</td></tr>
+              <tr><td>Jonah × Scot</td><td><span class="pill pill-blue">1:1 (recurring)</span></td><td>60 min</td></tr>
+              <tr><td>Claude Code Setup (Leland)</td><td><span class="pill pill-yellow">Learning</span></td><td>45 min</td></tr>
+              <tr><td>AI Builder Program L2</td><td><span class="pill pill-green">Bootcamp</span></td><td>90 min</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:12px;color:var(--muted);margin-top:12px;">⚠ Work calendar (Outlook) not connected via MCP — meeting data is incomplete. Outlook web was visited 47× suggesting active work calendar usage.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Email &amp; Slack</div>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.7;">
+            <strong style="color:var(--text);">Email:</strong> Not connected. Outlook web (outlook.office.com) visited 47× during work hours — active usage confirmed but content not analyzed.<br><br>
+            <strong style="color:var(--text);">Slack:</strong> Not connected.<br><br>
+            <strong style="color:var(--text);">Gmail:</strong> mail.google.com visited 10× — likely personal or secondary work thread.<br><br>
+            To unlock email and Slack analysis: connect Gmail or Outlook via <span style="color:var(--accent)">claude.ai → Settings → Connectors</span>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 3: KEY DIAGNOSTICS ═══ -->
+    <section>
+      <div class="section-title">Key Diagnostics</div>
+
+      <div class="grid-3" style="margin-bottom:16px;">
+        <div class="diag-card">
+          <h3>Context Switching Rate</h3>
+          <p>Average <strong style="color:var(--text)">17 unique domains/day</strong> during work hours. High on active days (Apr 15–16: 29 domains). Low on focused days (Apr 8: 8 domains, Apr 10: 6 domains).</p>
+          <div class="signal">📅 Lightest (most focused): Apr 10 &amp; Apr 8 — Fri pattern</div>
+        </div>
+        <div class="diag-card">
+          <h3>Meeting Load vs. Deep Work</h3>
+          <p>Only <strong style="color:var(--text)">3.5 hours of confirmed meetings</strong> over 14 weekdays from personal calendar. Outlook not connected — true meeting load is unknown. High Outlook visit count (47×) suggests real meeting activity not captured.</p>
+          <div class="signal">⚠ Connect Outlook calendar for accurate ratio</div>
+        </div>
+        <div class="diag-card">
+          <h3>Reactive vs. Proactive</h3>
+          <p>Social media at 42% of work-hours browsing signals heavy reactive/consuming behavior. Work tools (Docs, Outlook, SMG) total only 15%. AI tools at 1.2% despite stated goal of building agents — <strong style="color:var(--red)">significant intention–action gap.</strong></p>
+          <div class="signal">🎯 Goal says build. Time says browse.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Top 3 Time Drains</div>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:8px;">
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="font-size:24px;font-weight:700;color:var(--red);width:32px;flex-shrink:0;">1</div>
+            <div>
+              <div style="font-size:15px;font-weight:600;">LinkedIn — 645 visits during work hours</div>
+              <div style="font-size:13px;color:var(--text-dim);margin-top:4px;">If average dwell time is 60–90 seconds per visit, this is <strong style="color:var(--yellow)">10–16 hours</strong> consumed in 14 days — the single largest time commitment in the dataset. For a Customer Insights Analyst, some LinkedIn time may be competitive research, but the volume is disproportionate.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="font-size:24px;font-weight:700;color:var(--yellow);width:32px;flex-shrink:0;">2</div>
+            <div>
+              <div style="font-size:15px;font-weight:600;">Facebook + Instagram — 187 visits</div>
+              <div style="font-size:13px;color:var(--text-dim);margin-top:4px;">Pure personal social media during work hours. Facebook at 150 visits + Instagram at 37. No plausible work framing for this category.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="font-size:24px;font-weight:700;color:var(--yellow);width:32px;flex-shrink:0;">3</div>
+            <div>
+              <div style="font-size:15px;font-weight:600;">Unstructured Google search — 464 visits</div>
+              <div style="font-size:13px;color:var(--text-dim);margin-top:4px;">464 raw Google searches with no clear work pattern. Mixed personal/work intent. This could be partially replaced by AI tools — Claude or Perplexity — that synthesize rather than list results, cutting search-to-answer time by 60%+.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 4: GOAL ALIGNMENT ═══ -->
+    <section>
+      <div class="section-title">Goal Alignment</div>
+
+      <div class="goal-row">
+        <div class="goal-header">
+          <span class="goal-name">Build autonomous research agents for competitor &amp; trend intelligence</span>
+          <span class="pill pill-yellow">Low alignment</span>
+        </div>
+        <div class="goal-body">
+          Only 10 visits to n8n.io (automation) and 14 to claude.ai in 14 weekdays. The Leland AI Builder bootcamp (3 sessions attended) shows active learning investment, but hands-on building time in the browser is minimal relative to the goal weight.
+          <strong style="color:var(--text)"> What should be in the data but isn't:</strong> agent-building sessions in Claude Code, n8n workflow iteration, or scheduled runs being reviewed.
+        </div>
+        <div class="alignment-bar"><div class="alignment-fill" style="width:15%;background:var(--yellow)"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-header">
+          <span class="goal-name">Eliminate manual spreadsheet analysis</span>
+          <span class="pill pill-yellow">Partial</span>
+        </div>
+        <div class="goal-body">
+          Google Docs (171 visits) and Google Drive (15) are active — document work is real. SMG survey tool (21 visits) and Snowflake (6 visits) confirm manual data work continues. No evidence of automation tooling layered on top of these yet.
+        </div>
+        <div class="alignment-bar"><div class="alignment-fill" style="width:35%;background:var(--yellow)"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-header">
+          <span class="goal-name">Eliminate SQL writing &amp; debugging</span>
+          <span class="pill pill-red">Not visible</span>
+        </div>
+        <div class="goal-body">
+          6 Snowflake visits indicate active data access. No evidence of AI-assisted SQL generation in the dataset. Claude.ai could fully handle this today — but it isn't being used for it yet.
+        </div>
+        <div class="alignment-bar"><div class="alignment-fill" style="width:10%;background:var(--red)"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-header">
+          <span class="goal-name">Eliminate wordsmithing PowerPoint copy</span>
+          <span class="pill pill-red">Not visible</span>
+        </div>
+        <div class="goal-body">
+          No PowerPoint-related domains in the top 30. Either this work isn't happening in the audit window, or it's happening in desktop apps (not captured). If it's desktop-based, it's a blind spot worth tracking.
+        </div>
+        <div class="alignment-bar"><div class="alignment-fill" style="width:5%;background:var(--red)"></div></div>
+      </div>
+
+      <div class="goal-row" style="background:rgba(240,96,128,.04);border-color:rgba(240,96,128,.2);">
+        <div class="goal-header">
+          <span class="goal-name" style="color:var(--red);">What is eating time that does NOT move the needle</span>
+          <span class="pill pill-red">Redirect target</span>
+        </div>
+        <div class="goal-body">
+          LinkedIn (645 visits), Facebook (150), Instagram (37) — collectively account for <strong style="color:var(--text)">~42% of work-hours browser activity</strong>. This is time that could be partially redirected to building, testing, and iterating on the agents that are the stated #1 goal. Even converting 25% of that social media time to agent-building would be transformative.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 5: AUTOMATION OPPORTUNITIES ═══ -->
+    <section>
+      <div class="section-title">Automation Opportunities — Ranked by Impact</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">⚠ All estimates are drafts. Hours reclaimed assume automation handles 80% of the manual process.</p>
+
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- 1 -->
+        <div class="auto-card">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:22px;font-weight:800;color:var(--accent);min-width:32px;">1</div>
+            <div class="outcome">Survey insights write themselves — SMG data flows directly into a weekly exec brief, no manual pull required.</div>
+          </div>
+          <div>
+            <div class="auto-label">What's happening today</div>
+            <div class="auto-text">21 manual visits to api.smg.com in 14 days — logging in, pulling reports, interpreting results, and writing summaries by hand. Conservatively 3–5 hours/week of repetitive extraction and wordsmithing.</div>
+          </div>
+          <div>
+            <div class="auto-label">What the automated version looks like</div>
+            <div class="auto-text">A scheduled Claude agent hits the SMG API on a Monday schedule, pulls the latest survey wave, generates a structured brief (top findings → supporting data → recommendation), and emails or posts to Slack. You review a finished product, not raw data.</div>
+          </div>
+          <div class="auto-meta">
+            <span class="pill pill-green">Quick Win — under 2 hours</span>
+            <span class="hours-badge">~4 hrs reclaimed/week</span>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="auto-card">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:22px;font-weight:800;color:var(--accent);min-width:32px;">2</div>
+            <div class="outcome">Competitor and trend intelligence arrives in my inbox every morning — I never open LinkedIn for work research again.</div>
+          </div>
+          <div>
+            <div class="auto-label">What's happening today</div>
+            <div class="auto-text">645 LinkedIn visits in 14 days. Even if 30% are legitimate competitive research, that's ~200 manual visits to gather scattered signals. No structured output, no changelog, no anomaly detection.</div>
+          </div>
+          <div>
+            <div class="auto-label">What the automated version looks like</div>
+            <div class="auto-text">An agent tracks a defined list of competitors (other car wash chains, relevant operators) via LinkedIn, news APIs, and Google Alerts. Daily or weekly digest is structured as: new developments → sentiment shift → recommended action. Delivered to email before 8am.</div>
+          </div>
+          <div class="auto-meta">
+            <span class="pill pill-yellow">Medium Lift — half a day</span>
+            <span class="hours-badge">~3 hrs reclaimed/week</span>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="auto-card">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:22px;font-weight:800;color:var(--accent);min-width:32px;">3</div>
+            <div class="outcome">SQL queries never get written manually — I describe what I need and Snowflake runs it.</div>
+          </div>
+          <div>
+            <div class="auto-label">What's happening today</div>
+            <div class="auto-text">6 Snowflake visits indicate active data querying. Per CLAUDE.md, writing and debugging SQL is something Jonah wants to eliminate. Time cost: estimated 2–4 hours/week on query construction, debugging, and iteration.</div>
+          </div>
+          <div>
+            <div class="auto-label">What the automated version looks like</div>
+            <div class="auto-text">Claude Code or a Claude API integration accepts plain-English data questions, generates and executes SQL against Snowflake, returns formatted results. Common queries become saved templates. No SQL written by hand.</div>
+          </div>
+          <div class="auto-meta">
+            <span class="pill pill-green">Quick Win — under 2 hours</span>
+            <span class="hours-badge">~3 hrs reclaimed/week</span>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="auto-card">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:22px;font-weight:800;color:var(--accent);min-width:32px;">4</div>
+            <div class="outcome">Google search is replaced by structured AI answers — research that took 20 minutes takes 2.</div>
+          </div>
+          <div>
+            <div class="auto-label">What's happening today</div>
+            <div class="auto-text">464 raw Google searches during work hours, with no clear structure or synthesis pipeline. Search → click → read → synthesize manually. High-friction, low-leverage use of time for an analyst who needs structured signal.</div>
+          </div>
+          <div>
+            <div class="auto-label">What the automated version looks like</div>
+            <div class="auto-text">Claude with web search tool or Perplexity replaces ad-hoc Google searches. A custom GPT or Claude project trained on Quick Quack context answers internal questions directly. Saves click-depth and synthesis time.</div>
+          </div>
+          <div class="auto-meta">
+            <span class="pill pill-green">Quick Win — under 2 hours</span>
+            <span class="hours-badge">~2 hrs reclaimed/week</span>
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="auto-card">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:22px;font-weight:800;color:var(--accent);min-width:32px;">5</div>
+            <div class="outcome">Exec decks draft themselves from data — wordsmithing is review, not creation.</div>
+          </div>
+          <div>
+            <div class="auto-label">What's happening today</div>
+            <div class="auto-text">Per CLAUDE.md, eliminating wordsmithing PowerPoint copy is an explicit goal. Desktop-based work not captured in browser data — this blind spot suggests it may be a significant time cost that's invisible to this audit.</div>
+          </div>
+          <div>
+            <div class="auto-label">What the automated version looks like</div>
+            <div class="auto-text">Claude takes structured data output (survey results, Snowflake exports) and generates slide-ready bullets in exec-facing format: headline finding → supporting evidence → recommendation. Output goes into a Google Slides or PowerPoint template. Editing, not writing.</div>
+          </div>
+          <div class="auto-meta">
+            <span class="pill pill-yellow">Medium Lift — half a day</span>
+            <span class="hours-badge">~2 hrs reclaimed/week</span>
+          </div>
+        </div>
+
+        <!-- 6 -->
+        <div class="auto-card">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:22px;font-weight:800;color:var(--accent);min-width:32px;">6</div>
+            <div class="outcome">Recurring coordination with Scot and others happens through templates — no blank-page email writing.</div>
+          </div>
+          <div>
+            <div class="auto-label">What's happening today</div>
+            <div class="auto-text">Recurring 1:1 with scot@skepfoundation.org appears in calendar. Outlook visited 47× — active email thread management. Without email data, exact pattern unknown, but coordination overhead for recurring relationships is a common hidden time cost.</div>
+          </div>
+          <div>
+            <div class="auto-label">What the automated version looks like</div>
+            <div class="auto-text">Pre-meeting briefing agents pull context and draft an agenda before each recurring 1:1. Follow-up email templates fire automatically after meetings end. Claude drafts; you approve in 30 seconds.</div>
+          </div>
+          <div class="auto-meta">
+            <span class="pill pill-green">Quick Win — under 2 hours</span>
+            <span class="hours-badge">~1 hr reclaimed/week</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 6: DATA SOURCES ═══ -->
+    <section>
+      <div class="section-title">Data Sources</div>
+      <div class="card">
+        <div class="source-item">
+          <div class="source-dot" style="background:var(--green)"></div>
+          <div>
+            <div class="source-name">Chrome Browser History</div>
+            <div class="source-detail">C:\Users\jonah\AppData\Local\Google\Chrome\User Data\Default\History — Profile: jonahsbrooks@gmail.com — Date range: Apr 2–21, 2026 (weekdays 8am–6:30pm) — 2,008 filtered visits analyzed</div>
+          </div>
+        </div>
+        <div class="source-item">
+          <div class="source-dot" style="background:var(--green)"></div>
+          <div>
+            <div class="source-name">Google Calendar (Primary)</div>
+            <div class="source-detail">jonahsbrooks@gmail.com — Personal calendar — Apr 2–21, 2026 — 4 events found. ⚠ Work calendar (Outlook/Microsoft 365) not accessible via MCP.</div>
+          </div>
+        </div>
+        <div class="source-item">
+          <div class="source-dot" style="background:var(--yellow)"></div>
+          <div>
+            <div class="source-name">Windows Activity Timeline (ActivitiesCache.db)</div>
+            <div class="source-detail">C:\Users\jonah\AppData\Local\ConnectedDevicesPlatform\ — Queried all 3 DB files. No app usage activity types (5/6) found — only system sync records (type 11). App-level usage data unavailable from this source.</div>
+          </div>
+        </div>
+        <div class="source-item">
+          <div class="source-dot" style="background:var(--red)"></div>
+          <div>
+            <div class="source-name">Email (Outlook / Gmail)</div>
+            <div class="source-detail">Not connected. To enable: claude.ai → Settings → Connectors → add Gmail or Outlook. Would unlock: top senders, repeating email types, approval chains.</div>
+          </div>
+        </div>
+        <div class="source-item">
+          <div class="source-dot" style="background:var(--red)"></div>
+          <div>
+            <div class="source-name">Slack</div>
+            <div class="source-detail">Not connected. To enable: claude.ai → Settings → Connectors → add Slack. Would unlock: channel attention distribution, who messages most, what gets chased.</div>
+          </div>
+        </div>
+        <div class="source-item">
+          <div class="source-dot" style="background:var(--red)"></div>
+          <div>
+            <div class="source-name">Desktop App Usage (Windows)</div>
+            <div class="source-detail">No app-level telemetry available via Windows Timeline. PowerPoint, Excel, and other desktop apps not captured. Recommend enabling Windows Screen Time or using a tool like ActivityWatch to capture this.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="container">
+    <footer>
+      Time Audit — April 21, 2026 &nbsp;|&nbsp; Part of my AI Builder Automation Portfolio
+    </footer>
+  </div>
+
+</body>
+</html>

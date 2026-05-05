@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automation Roadmap — Kanban</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-bg:             #0F1011;
+      --color-surface:        #2E2E2E;
+      --color-overlay-subtle: rgba(255, 255, 255, 0.04);
+      --color-overlay-ghost:  rgba(255, 255, 255, 0.10);
+      --color-text-primary:   #FFFFFF;
+      --color-text-muted:     rgba(255, 255, 255, 0.60);
+      --color-text-faint:     rgba(255, 255, 255, 0.45);
+      --color-accent:         #00B3DD;
+      --color-accent-teal:    #017494;
+      --color-badge-bg:       #D7F5FF;
+      --color-positive:       #00B35C;
+      --color-data-purple:    #847DFF;
+      --color-warning:        #E8A020;
+      --color-danger:         #E85060;
+      --border:               rgba(255, 255, 255, 0.06);
+      --radius:               12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ─── HEADER ─── */
+    .header {
+      background: linear-gradient(135deg, #141516 0%, #1c1e20 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 44px 40px 36px;
+    }
+    .header-inner { max-width: 1400px; margin: 0 auto; }
+    .breadcrumb {
+      font-size: 12px;
+      color: var(--color-text-faint);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .breadcrumb a { color: var(--color-text-faint); }
+    .breadcrumb a:hover { color: var(--color-accent); text-decoration: none; }
+    .breadcrumb-sep { opacity: 0.3; }
+    .badge {
+      display: inline-block;
+      background: var(--color-badge-bg);
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--color-accent-teal);
+      padding: 3px 12px;
+      margin-bottom: 16px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+    .header .subtitle {
+      font-size: 14px;
+      color: var(--color-text-muted);
+    }
+    .header .subtitle strong { color: var(--color-accent); font-weight: 600; }
+
+    /* ─── BOARD WRAPPER ─── */
+    .board-outer {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 36px 40px 60px;
+    }
+
+    /* ─── KANBAN BOARD ─── */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    /* ─── COLUMN ─── */
+    .col {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.15s;
+    }
+    .col.drag-over {
+      background: rgba(255, 255, 255, 0.055);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* column accent top line */
+    .col::before {
+      content: '';
+      display: block;
+      height: 3px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      flex-shrink: 0;
+    }
+    .col[data-col="suggested"]::before  { background: rgba(255, 255, 255, 0.12); }
+    .col[data-col="to-build"]::before   { background: var(--color-accent); }
+    .col[data-col="in-progress"]::before{ background: var(--color-data-purple); }
+    .col[data-col="done"]::before       { background: var(--color-positive); }
+
+    /* ─── COLUMN HEADER ─── */
+    .col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .col-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+    }
+    .col[data-col="suggested"]   .col-title { color: var(--color-text-faint); }
+    .col[data-col="to-build"]    .col-title { color: var(--color-accent); }
+    .col[data-col="in-progress"] .col-title { color: var(--color-data-purple); }
+    .col[data-col="done"]        .col-title { color: var(--color-positive); }
+
+    .col-count {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--color-overlay-subtle);
+      color: var(--color-text-faint);
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* ─── CARDS CONTAINER ─── */
+    .cards {
+      padding: 14px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    /* ─── EMPTY STATE ─── */
+    .col-empty {
+      display: none;
+      padding: 32px 18px;
+      text-align: center;
+      color: var(--color-text-faint);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .col-empty-icon {
+      font-size: 22px;
+      margin-bottom: 8px;
+      opacity: 0.4;
+    }
+    .col[data-col="suggested"] .col-empty { display: block; }
+
+    /* ─── CARD ─── */
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 16px 14px;
+      cursor: grab;
+      user-select: none;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
+      position: relative;
+    }
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+    .card:active { cursor: grabbing; }
+    .card.dragging {
+      opacity: 0.45;
+      transform: scale(0.97);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+    }
+
+    /* left accent bar on card */
+    .card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 10px; bottom: 10px;
+      width: 2px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.10);
+    }
+    .card[data-priority="High"]::before   { background: var(--color-danger); }
+    .card[data-priority="Medium"]::before { background: var(--color-warning); }
+    .card[data-priority="Low"]::before    { background: rgba(255, 255, 255, 0.15); }
+
+    .card-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 6px;
+      line-height: 1.4;
+      padding-left: 10px;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      line-height: 1.55;
+      margin-bottom: 12px;
+      padding-left: 10px;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-left: 10px;
+    }
+
+    /* ─── PRIORITY PILL ─── */
+    .pill {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .pill-high   { background: rgba(232, 80, 96, .14);  color: var(--color-danger); }
+    .pill-medium { background: rgba(232, 160, 32, .14); color: var(--color-warning); }
+    .pill-low    { background: var(--color-overlay-subtle); color: var(--color-text-faint); }
+
+    /* ─── DRAG HANDLE ─── */
+    .drag-handle {
+      color: var(--color-text-faint);
+      font-size: 11px;
+      opacity: 0.4;
+      letter-spacing: 1px;
+    }
+
+    /* ─── DONE COLUMN — dim cards ─── */
+    .col[data-col="done"] .card {
+      opacity: 0.65;
+    }
+    .col[data-col="done"] .card:hover {
+      opacity: 0.9;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-text-faint);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1100px) {
+      .board { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .board { grid-template-columns: 1fr; }
+      .board-outer { padding: 24px 20px 48px; }
+      .header { padding: 32px 20px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="breadcrumb">
+        <a href="ai-builder-plan.html">AI Builder Plan</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>Automation Roadmap</span>
+      </div>
+      <div class="badge">Automation Roadmap</div>
+      <h1>Kanban — What I'm Building</h1>
+      <p class="subtitle">Drag cards across columns to track progress. State syncs to <strong>Notion</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ═══ BOARD ═══ -->
+  <div class="board-outer">
+    <div class="board" id="board">
+
+      <!-- SUGGESTED -->
+      <div class="col" data-col="suggested"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'suggested')">
+        <div class="col-header">
+          <span class="col-title">Suggested</span>
+          <span class="col-count" id="count-suggested">0</span>
+        </div>
+        <div class="cards" id="cards-suggested">
+          <div class="col-empty">
+            <div class="col-empty-icon">◦</div>
+            Ideas from teammates<br>will appear here
+          </div>
+        </div>
+      </div>
+
+      <!-- TO BUILD -->
+      <div class="col" data-col="to-build"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'to-build')">
+        <div class="col-header">
+          <span class="col-title">To Build</span>
+          <span class="col-count" id="count-to-build">0</span>
+        </div>
+        <div class="cards" id="cards-to-build"></div>
+      </div>
+
+      <!-- IN PROGRESS -->
+      <div class="col" data-col="in-progress"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'in-progress')">
+        <div class="col-header">
+          <span class="col-title">In Progress</span>
+          <span class="col-count" id="count-in-progress">0</span>
+        </div>
+        <div class="cards" id="cards-in-progress"></div>
+      </div>
+
+      <!-- DONE -->
+      <div class="col" data-col="done"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'done')">
+        <div class="col-header">
+          <span class="col-title">Done</span>
+          <span class="col-count" id="count-done">0</span>
+        </div>
+        <div class="cards" id="cards-done"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="footer">
+    AI Builder Automation Portfolio &nbsp;·&nbsp; April 2026 &nbsp;·&nbsp; Drag cards to update status
+  </div>
+
+  <!-- ═══ BUILD PLANS ═══ -->
+  <div class="board-outer" style="padding-top: 0; padding-bottom: 80px;">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .10em; text-transform: uppercase; color: var(--color-text-faint); margin-bottom: 16px;">Build Plans</div>
+    <div style="background: var(--color-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div>
+          <div style="font-size: 15px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px;">Cancellation Survey Auto-Brief</div>
+          <div style="font-size: 12px; color: var(--color-text-faint);">Scoped 2026-05-04 &nbsp;·&nbsp; High Priority</div>
+        </div>
+        <span class="pill pill-high">High</span>
+      </div>
+      <p style="font-size: 13px; color: var(--color-text-muted); line-height: 1.65; margin-bottom: 24px;">A Python script that reads your monthly Qualtrics CSV export, sends the raw responses to Claude for analysis, and outputs a .pptx slide deck with 3–5 prioritized, consulting-style insights — each framed as a "so what" with supporting evidence and a recommendation. Replaces the manual Excel analysis and slide-writing entirely.</p>
+      <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-bottom: 20px;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-faint); margin-bottom: 14px;">Sub-builds</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="padding: 14px 16px; background: var(--color-overlay-subtle); border-radius: 8px; border-left: 2px solid var(--color-accent);">
+            <div style="font-size: 12px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px;">1 — CSV → Prioritized Insights</div>
+            <div style="font-size: 12px; color: var(--color-text-muted); line-height: 1.5;">Reads Qualtrics export, passes responses to Claude, returns ranked insight list with business framing. Done when: 3–5 numbered insight bullets print to stdout. ~1–2 hrs.</div>
+          </div>
+          <div style="padding: 14px 16px; background: var(--color-overlay-subtle); border-radius: 8px; border-left: 2px solid rgba(255,255,255,0.15);">
+            <div style="font-size: 12px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px;">2 — Insights → PowerPoint</div>
+            <div style="font-size: 12px; color: var(--color-text-muted); line-height: 1.5;">Takes Claude output, generates a .pptx — one slide per insight, title = headline finding, body = evidence + recommendation. Done when: file opens in PowerPoint with clean, readable slides. ~1–2 hrs.</div>
+          </div>
+        </div>
+      </div>
+      <div style="border-top: 1px solid var(--border); padding-top: 16px;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-faint); margin-bottom: 10px;">Out of v1</div>
+        <div style="font-size: 12px; color: var(--color-text-muted); line-height: 1.7;">Automated Qualtrics pull &nbsp;·&nbsp; Scheduled runs &nbsp;·&nbsp; Trend comparison &nbsp;·&nbsp; Branded templates &nbsp;·&nbsp; Email delivery</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let draggedId = null;
+    let draggedEl = null;
+    let draggedPrevCol = null;
+
+    function updateCounts() {
+      ['suggested', 'to-build', 'in-progress', 'done'].forEach(colId => {
+        const count = document.querySelectorAll(`#cards-${colId} .card`).length;
+        document.getElementById(`count-${colId}`).textContent = count;
+      });
+    }
+
+    function createCard(data) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.id = data.id;
+      el.dataset.priority = data.priority;
+      el.setAttribute('draggable', 'true');
+
+      const pillClass = { High: 'pill-high', Medium: 'pill-medium', Low: 'pill-low' }[data.priority] || 'pill-low';
+
+      el.innerHTML = `
+        <div class="card-name">${data.name}</div>
+        <div class="card-desc">${data.desc}</div>
+        <div class="card-footer">
+          <span class="pill ${pillClass}">${data.priority}</span>
+          <span class="drag-handle">⠿</span>
+        </div>
+      `;
+
+      el.addEventListener('dragstart', e => {
+        draggedId = data.id;
+        draggedEl = el;
+        draggedPrevCol = el.closest('.col').dataset.col;
+        el.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      el.addEventListener('dragend', () => {
+        el.classList.remove('dragging');
+        draggedId = null;
+        draggedEl = null;
+        draggedPrevCol = null;
+      });
+
+      return el;
+    }
+
+    function onDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      e.currentTarget.classList.add('drag-over');
+    }
+
+    function onDragLeave(e) {
+      if (!e.currentTarget.contains(e.relatedTarget)) {
+        e.currentTarget.classList.remove('drag-over');
+      }
+    }
+
+    async function onDrop(e, colId) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      if (!draggedId || !draggedEl) return;
+
+      // Capture before any await — dragend fires after drop and clears these
+      const id = draggedId;
+      const card = draggedEl;
+      const prevCol = draggedPrevCol;
+
+      const targetCards = document.getElementById(`cards-${colId}`);
+      if (!card || !targetCards || prevCol === colId) return;
+
+      // Optimistic move
+      targetCards.appendChild(card);
+      updateCounts();
+
+      try {
+        const res = await fetch('/api/roadmap', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, status: colId }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      } catch (err) {
+        console.error('Status update failed, reverting:', err);
+        const prevContainer = document.getElementById(`cards-${prevCol}`);
+        if (prevContainer) prevContainer.appendChild(card);
+        updateCounts();
+      }
+    }
+
+    async function init() {
+      try {
+        const res = await fetch('/api/roadmap');
+        const cards = await res.json();
+        cards.forEach(data => {
+          const card = createCard(data);
+          const container = document.getElementById(`cards-${data.status}`);
+          if (container) container.appendChild(card);
+        });
+        updateCounts();
+      } catch (err) {
+        console.error('Failed to load roadmap from Notion:', err);
+      }
+    }
+
+    init();
+  </script>
+
+</body>
+</html>

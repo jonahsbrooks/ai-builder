@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Builder Plan — Jonah Brooks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-bg:             #0F1011;
+      --color-surface:        #2E2E2E;
+      --color-overlay-subtle: rgba(255, 255, 255, 0.04);
+      --color-overlay-ghost:  rgba(255, 255, 255, 0.10);
+      --color-text-primary:   #FFFFFF;
+      --color-text-muted:     rgba(255, 255, 255, 0.60);
+      --color-text-faint:     rgba(255, 255, 255, 0.45);
+      --color-accent:         #00B3DD;
+      --color-accent-teal:    #017494;
+      --color-badge-bg:       #D7F5FF;
+      --color-positive:       #00B35C;
+      --color-data-purple:    #847DFF;
+      --color-warning:        #E8A020;
+      --color-danger:         #E85060;
+      --border:               rgba(255, 255, 255, 0.06);
+      --radius:               12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 0 0 60px;
+    }
+    a { color: var(--color-accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ─── HEADER ─── */
+    .header {
+      background: linear-gradient(135deg, #141516 0%, #1c1e20 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 56px 40px 44px;
+    }
+    .header-inner { max-width: 1100px; margin: 0 auto; }
+    .badge {
+      display: inline-block;
+      background: var(--color-badge-bg);
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--color-accent-teal);
+      padding: 3px 12px;
+      margin-bottom: 20px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .header h1 {
+      font-size: 34px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+    .header .goal-line {
+      font-size: 16px;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+      line-height: 1.5;
+    }
+    .header .goal-line strong { color: var(--color-accent); font-weight: 600; }
+    .header .date-line {
+      font-size: 13px;
+      color: var(--color-text-faint);
+      margin-top: 12px;
+    }
+
+    /* ─── LAYOUT ─── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+    /* ─── SECTION ─── */
+    section { margin-top: 56px; }
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--color-text-faint);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ─── PILL ─── */
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+    .pill-green  { background: rgba(0, 179, 92, .15);    color: var(--color-positive); }
+    .pill-yellow { background: rgba(232, 160, 32, .15);  color: var(--color-warning); }
+    .pill-red    { background: rgba(232, 80, 96, .15);   color: var(--color-danger); }
+    .pill-blue   { background: rgba(0, 179, 221, .15);   color: var(--color-accent); }
+    .pill-muted  { background: var(--color-overlay-subtle); color: var(--color-text-faint); }
+
+    /* ─── INSIGHT LIST ─── */
+    .insight-list { display: flex; flex-direction: column; gap: 12px; }
+    .insight {
+      background: var(--color-surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--color-accent);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .insight-num {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--color-accent);
+      line-height: 1;
+      flex-shrink: 0;
+      min-width: 28px;
+    }
+    .insight-body { font-size: 14px; color: var(--color-text-muted); line-height: 1.65; }
+    .insight-body strong { color: var(--color-text-primary); }
+    .audit-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-accent);
+      background: var(--color-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 18px;
+      transition: background 0.2s;
+    }
+    .audit-link:hover { background: var(--color-overlay-ghost); text-decoration: none; }
+
+    /* ─── BUILD CARDS ─── */
+    .build-grid { display: flex; flex-direction: column; gap: 16px; }
+    .build-card {
+      background: var(--color-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .build-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-data-purple) 100%);
+    }
+    .build-rank {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--color-text-faint);
+      margin-bottom: 10px;
+    }
+    .build-outcome {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      line-height: 1.4;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .build-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+    .build-col-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--color-text-faint);
+      margin-bottom: 8px;
+    }
+    .build-col-text {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+    .build-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .hours-badge {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-positive);
+    }
+    .status-badge {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--color-text-faint);
+      background: var(--color-overlay-subtle);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 12px;
+    }
+
+    /* ─── SPRINT GRID ─── */
+    .sprint-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 860px) { .sprint-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .sprint-grid { grid-template-columns: 1fr; } }
+    .sprint-card {
+      background: var(--color-overlay-subtle);
+      border: 1px dashed rgba(255, 255, 255, 0.10);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+    .sprint-card:hover { background: var(--color-overlay-ghost); }
+    .sprint-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+    }
+    .sprint-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      line-height: 1.4;
+    }
+    .sprint-coming {
+      font-size: 12px;
+      color: var(--color-text-faint);
+      margin-top: auto;
+      padding-top: 14px;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-text-faint);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="badge">AI Builder Automation Portfolio</div>
+      <h1>Jonah Brooks — AI Builder Plan</h1>
+      <p class="goal-line">
+        #1 Goal: <strong>Build autonomous research agents that surface competitor and trend intelligence without manual effort</strong>
+      </p>
+      <p class="date-line">April 21, 2026 &nbsp;·&nbsp; Sprint 1 — Time Audit &amp; Plan</p>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- ═══ SECTION: TIME SUMMARY ═══ -->
+    <section>
+      <div class="section-title">What I Learned From My Time Audit</div>
+      <div class="insight-list">
+
+        <div class="insight">
+          <div class="insight-num">1</div>
+          <div class="insight-body">
+            <strong>My time and my goal are pointing in opposite directions.</strong> Social media consumed 42% of browser time during work hours — LinkedIn alone at 645 visits in 14 days. AI tools got 1.2%. The gap between "build autonomous agents" and actual daily behavior is the most actionable finding in the data.
+          </div>
+        </div>
+
+        <div class="insight">
+          <div class="insight-num">2</div>
+          <div class="insight-body">
+            <strong>The manual work I want to eliminate is active and measurable.</strong> SMG survey tool (21 visits), Snowflake (6 visits), Google Docs (171 visits) — the repetitive extraction, SQL queries, and document drafting I said I want to automate are showing up in the data every week. These are real targets, not hypothetical ones.
+          </div>
+        </div>
+
+        <div class="insight">
+          <div class="insight-num">3</div>
+          <div class="insight-body">
+            <strong>The learning investment is real — now I need to ship something.</strong> Three Leland AI Builder sessions attended, n8n.io being explored, Claude Code in active use. The foundation is there. The next move is converting that learning into a deployed automation that runs without me.
+          </div>
+        </div>
+
+      </div>
+      <div style="margin-top:16px;">
+        <a class="audit-link" href="time-audit.html">
+          ↗ Full Time Audit
+        </a>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION: WHAT I'M BUILDING ═══ -->
+    <section>
+      <div class="section-title">What I'm Building — Ranked by Impact</div>
+      <div class="build-grid">
+
+        <!-- #1 -->
+        <div class="build-card">
+          <div class="build-rank">#1 &nbsp;·&nbsp; Highest impact</div>
+          <div class="build-outcome">Cancellation survey insights are analyzed and emailed automatically — one month of Qualtrics data turned into a team-ready summary before I lift a finger.</div>
+          <div class="build-cols">
+            <div>
+              <div class="build-col-title">What's happening today</div>
+              <div class="build-col-text">Manual process — log into Qualtrics, export cancellation survey responses, interpret the trends, write a summary, and distribute to the team. Inconsistent cadence and significant synthesis time each cycle.</div>
+            </div>
+            <div>
+              <div class="build-col-title">What the automated version looks like</div>
+              <div class="build-col-text">A Claude agent calls the Qualtrics API on a set schedule, pulls the past 30 days of cancellation survey responses, identifies top cancellation reasons and trend shifts, then drafts a structured email ready to send to stakeholders. One review, one click to send.</div>
+            </div>
+            <div>
+              <div class="build-col-title">Why it's #1</div>
+              <div class="build-col-text">Cancellation insight is decision-critical for a subscription car wash business — this directly informs retention strategy. It's end-to-end: API fetch → AI analysis → exec-ready output. Highest signal, clearest workflow, most immediate business impact.</div>
+            </div>
+          </div>
+          <div class="build-meta">
+            <span class="pill pill-yellow">Medium Lift — half a day</span>
+            <span class="hours-badge">~3 hrs reclaimed / week</span>
+            <span class="status-badge">Not started</span>
+          </div>
+        </div>
+
+        <!-- #2 -->
+        <div class="build-card">
+          <div class="build-rank">#2</div>
+          <div class="build-outcome">Survey insights write themselves — SMG data flows directly into a weekly exec brief, no manual pull required.</div>
+          <div class="build-cols">
+            <div>
+              <div class="build-col-title">What's happening today</div>
+              <div class="build-col-text">21 manual visits to api.smg.com in 14 days — logging in, pulling reports, interpreting results, and writing summaries by hand. Estimated 3–5 hours/week of repetitive extraction and wordsmithing.</div>
+            </div>
+            <div>
+              <div class="build-col-title">What the automated version looks like</div>
+              <div class="build-col-text">A scheduled Claude agent hits the SMG API on a Monday schedule, pulls the latest survey wave, generates a structured brief (top findings → supporting data → recommendation), and emails or posts to Slack. You review a finished product, not raw data.</div>
+            </div>
+            <div>
+              <div class="build-col-title">Why it's #1</div>
+              <div class="build-col-text">Directly eliminates the manual survey work called out in CLAUDE.md. Highest hours reclaimed. The output is exec-ready, which matches the audience Jonah already serves.</div>
+            </div>
+          </div>
+          <div class="build-meta">
+            <span class="pill pill-green">Quick Win — under 2 hours</span>
+            <span class="hours-badge">~4 hrs reclaimed / week</span>
+            <span class="status-badge">Not started</span>
+          </div>
+        </div>
+
+        <!-- #3 -->
+        <div class="build-card">
+          <div class="build-rank">#3</div>
+          <div class="build-outcome">Competitor and trend intelligence arrives in my inbox every morning — I never open LinkedIn for work research again.</div>
+          <div class="build-cols">
+            <div>
+              <div class="build-col-title">What's happening today</div>
+              <div class="build-col-text">645 LinkedIn visits in 14 days. Even if 30% are legitimate competitive research, that's ~200 manual visits to gather scattered signals with no structured output, no changelog, no anomaly detection.</div>
+            </div>
+            <div>
+              <div class="build-col-title">What the automated version looks like</div>
+              <div class="build-col-text">An agent tracks competitors (car wash chains, relevant operators) via LinkedIn, news APIs, and Google Alerts. Daily or weekly digest: new developments → sentiment shift → recommended action. Delivered to email before 8am.</div>
+            </div>
+            <div>
+              <div class="build-col-title">Why it's #2</div>
+              <div class="build-col-text">This is the core of the #1 goal — autonomous competitor intelligence. Reclaims 3+ hours/week and converts scattered browsing into a structured, scheduled signal.</div>
+            </div>
+          </div>
+          <div class="build-meta">
+            <span class="pill pill-yellow">Medium Lift — half a day</span>
+            <span class="hours-badge">~3 hrs reclaimed / week</span>
+            <span class="status-badge">Not started</span>
+          </div>
+        </div>
+
+        <!-- #4 -->
+        <div class="build-card">
+          <div class="build-rank">#4</div>
+          <div class="build-outcome">SQL queries never get written manually — I describe what I need and Snowflake runs it.</div>
+          <div class="build-cols">
+            <div>
+              <div class="build-col-title">What's happening today</div>
+              <div class="build-col-text">6 Snowflake visits indicate active data querying. Writing and debugging SQL is explicitly listed in CLAUDE.md as something to eliminate. Estimated 2–4 hours/week on query construction, debugging, and iteration.</div>
+            </div>
+            <div>
+              <div class="build-col-title">What the automated version looks like</div>
+              <div class="build-col-text">Claude Code or a Claude API integration accepts plain-English data questions, generates and executes SQL against Snowflake, returns formatted results. Common queries become saved templates. No SQL written by hand.</div>
+            </div>
+            <div>
+              <div class="build-col-title">Why it's #3</div>
+              <div class="build-col-text">Explicitly named in CLAUDE.md as a priority elimination. Quick win effort level means it can ship fast. Immediately frees up analyst capacity for higher-value synthesis work.</div>
+            </div>
+          </div>
+          <div class="build-meta">
+            <span class="pill pill-green">Quick Win — under 2 hours</span>
+            <span class="hours-badge">~3 hrs reclaimed / week</span>
+            <span class="status-badge">Not started</span>
+          </div>
+        </div>
+
+        <!-- #5 -->
+        <div class="build-card">
+          <div class="build-rank">#5</div>
+          <div class="build-outcome">Google search is replaced by structured AI answers — research that took 20 minutes takes 2.</div>
+          <div class="build-cols">
+            <div>
+              <div class="build-col-title">What's happening today</div>
+              <div class="build-col-text">464 raw Google searches during work hours with no synthesis pipeline. Search → click → read → synthesize manually. High-friction use of time for an analyst who needs structured signal, not a list of links.</div>
+            </div>
+            <div>
+              <div class="build-col-title">What the automated version looks like</div>
+              <div class="build-col-text">Claude with web search, or a Claude project trained on Quick Quack context, answers internal and market questions directly. Replaces click-depth research with one-shot answers. Saves synthesis time on every research session.</div>
+            </div>
+            <div>
+              <div class="build-col-title">Why it's #4</div>
+              <div class="build-col-text">Habit change, not a build — but high leverage. 464 searches/two weeks means even a 50% reduction would reclaim meaningful weekly time with zero engineering effort.</div>
+            </div>
+          </div>
+          <div class="build-meta">
+            <span class="pill pill-green">Quick Win — under 2 hours</span>
+            <span class="hours-badge">~2 hrs reclaimed / week</span>
+            <span class="status-badge">Not started</span>
+          </div>
+        </div>
+
+        <!-- #6 -->
+        <div class="build-card">
+          <div class="build-rank">#6</div>
+          <div class="build-outcome">Exec decks draft themselves from data — wordsmithing is review, not creation.</div>
+          <div class="build-cols">
+            <div>
+              <div class="build-col-title">What's happening today</div>
+              <div class="build-col-text">Eliminating PowerPoint wordsmithing is an explicit goal in CLAUDE.md. Desktop app usage isn't captured in the audit — this is a known blind spot. Time cost is real but unmeasured.</div>
+            </div>
+            <div>
+              <div class="build-col-title">What the automated version looks like</div>
+              <div class="build-col-text">Claude takes structured data output (survey results, Snowflake exports) and generates slide-ready bullets in exec-facing format: headline finding → supporting evidence → recommendation. Output goes into a Google Slides or PowerPoint template. Editing, not writing.</div>
+            </div>
+            <div>
+              <div class="build-col-title">Why it's #5</div>
+              <div class="build-col-text">Named elimination target. Lower rank because it requires the SMG/Snowflake automation (#1, #3) to be in place first — the output of those feeds this one. Natural third step in the stack.</div>
+            </div>
+          </div>
+          <div class="build-meta">
+            <span class="pill pill-yellow">Medium Lift — half a day</span>
+            <span class="hours-badge">~2 hrs reclaimed / week</span>
+            <span class="status-badge">Not started</span>
+          </div>
+        </div>
+
+        <!-- #7 -->
+        <div class="build-card">
+          <div class="build-rank">#7</div>
+          <div class="build-outcome">Recurring coordination with Scot and others happens through templates — no blank-page email writing.</div>
+          <div class="build-cols">
+            <div>
+              <div class="build-col-title">What's happening today</div>
+              <div class="build-col-text">Recurring 1:1 with scot@skepfoundation.org confirmed in calendar. Outlook accessed 47× — active email thread management. Without email data connected, exact pattern unknown, but coordination overhead for recurring relationships is a consistent hidden cost.</div>
+            </div>
+            <div>
+              <div class="build-col-title">What the automated version looks like</div>
+              <div class="build-col-text">Pre-meeting briefing agents pull context and draft an agenda before each recurring 1:1. Follow-up email templates fire automatically after meetings end. Claude drafts; you approve in 30 seconds.</div>
+            </div>
+            <div>
+              <div class="build-col-title">Why it's #6</div>
+              <div class="build-col-text">Lower confidence — email data not yet connected. Hours reclaimed estimate is speculative. Worth building once email/Slack are connected and the actual pattern is visible.</div>
+            </div>
+          </div>
+          <div class="build-meta">
+            <span class="pill pill-green">Quick Win — under 2 hours</span>
+            <span class="hours-badge">~1 hr reclaimed / week</span>
+            <span class="status-badge">Not started</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══ SECTION: COMING SPRINTS ═══ -->
+    <section>
+      <div class="section-title">My System — Coming Sprints</div>
+      <div class="sprint-grid">
+
+        <div class="sprint-card">
+          <div class="sprint-label">Sprint 2</div>
+          <div class="sprint-name">Deployed website + data collection tool</div>
+          <div class="sprint-coming">Coming in Sprint 2</div>
+        </div>
+
+        <div class="sprint-card">
+          <div class="sprint-label">Sprint 3</div>
+          <div class="sprint-name">Automated n8n or Claude Routines workflow</div>
+          <div class="sprint-coming">Coming in Sprint 3</div>
+        </div>
+
+        <div class="sprint-card">
+          <div class="sprint-label">Sprint 4</div>
+          <div class="sprint-name">Knowledge wiki context system</div>
+          <div class="sprint-coming">Coming in Sprint 4</div>
+        </div>
+
+        <div class="sprint-card">
+          <div class="sprint-label">Sprint 5</div>
+          <div class="sprint-name">Custom agentic workflow</div>
+          <div class="sprint-coming">Coming in Sprint 5</div>
+        </div>
+
+        <div class="sprint-card">
+          <div class="sprint-label">Sprint 6</div>
+          <div class="sprint-name">Eval System — tested and documented</div>
+          <div class="sprint-coming">Coming in Sprint 6</div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="container">
+    <footer>
+      AI Builder Automation Portfolio — April 21, 2026 &nbsp;|&nbsp; Built in L2
+    </footer>
+  </div>
+
+</body>
+</html>
